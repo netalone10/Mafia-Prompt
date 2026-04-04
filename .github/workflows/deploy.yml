@@ -53,6 +53,7 @@ jobs:
           lftp -c "
             set ftp:ssl-allow no;
             open -u 'mafia@prompt.amuharr.com','$FTP_PASSWORD' server902.shared.spaceship.host;
+            mkdir -p /home/ixqbglfurr/promptforge-id/tmp;
             put tmp/restart.txt -o /home/ixqbglfurr/promptforge-id/tmp/restart.txt;
             bye
           "
