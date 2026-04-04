@@ -25,12 +25,16 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
       - name: Deploy ke cPanel via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: server902.shared.spaceship.host
-          username: mafia@prompt.amuharr.com
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./out/
-          server-dir: /prompt.amuharr.com/
-          dangerous-clean-slate: false
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp -c "
+            set ftp:ssl-allow no;
+            open -u 'mafia@prompt.amuharr.com','$FTP_PASSWORD' server902.shared.spaceship.host;
+            mirror -R --delete --verbose ./out/ /prompt.amuharr.com/;
+            bye
+          "
