@@ -28,13 +28,31 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Deploy ke cPanel via FTP
+      - name: Deploy files via FTP
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           lftp -c "
             set ftp:ssl-allow no;
             open -u 'mafia@prompt.amuharr.com','$FTP_PASSWORD' server902.shared.spaceship.host;
-            mirror -R --delete --verbose ./out/ /prompt.amuharr.com/;
+            mirror -R --delete --verbose \
+              --exclude node_modules/ \
+              --exclude .git/ \
+              --exclude .env.local \
+              --exclude .env \
+              ./ /home/ixqbglfurr/promptforge-id/;
+            bye
+          "
+
+      - name: Restart Node.js App
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          mkdir -p tmp
+          touch tmp/restart.txt
+          lftp -c "
+            set ftp:ssl-allow no;
+            open -u 'mafia@prompt.amuharr.com','$FTP_PASSWORD' server902.shared.spaceship.host;
+            put tmp/restart.txt -o /home/ixqbglfurr/promptforge-id/tmp/restart.txt;
             bye
           "
