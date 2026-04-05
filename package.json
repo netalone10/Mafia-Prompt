@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prestart": "chmod -R 755 .next || true",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "mysql2": "^3.20.0",
     "next": "16.2.2",
+    "next-auth": "^4.24.13",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

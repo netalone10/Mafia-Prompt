@@ -84,5 +84,5 @@ export const niches: Niche[] = [
   },
 ];
 
-export const FREE_GENERATE_LIMIT = 3;
+export const FREE_GENERATE_LIMIT = 5;
 export const VALID_LICENSE_KEY = 'PFID-PRO-2026';

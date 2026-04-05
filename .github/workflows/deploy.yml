@@ -32,17 +32,16 @@ jobs:
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          cat > /tmp/deploy.lftp << EOF
-          set ftp:ssl-allow no
-          open -u mafia@prompt.amuharr.com,$FTP_PASSWORD server902.shared.spaceship.host
-          mirror --reverse --verbose .next promptforge-id/.next
-          mirror --reverse --verbose public promptforge-id/public
-          put package.json -o promptforge-id/package.json
-          put package-lock.json -o promptforge-id/package-lock.json
-          put server.js -o promptforge-id/server.js
-          put next.config.ts -o promptforge-id/next.config.ts
-          mkdir -p promptforge-id/tmp
-          put /dev/null -o promptforge-id/tmp/restart.txt
-          bye
-          EOF
-          lftp -f /tmp/deploy.lftp
+          lftp -c "
+            set ftp:ssl-allow no;
+            open -u 'mafia@prompt.amuharr.com','$FTP_PASSWORD' server902.shared.spaceship.host;
+            mirror -R --verbose .next promptforge-id/.next;
+            mirror -R --verbose public promptforge-id/public;
+            put package.json -o promptforge-id/package.json;
+            put package-lock.json -o promptforge-id/package-lock.json;
+            put server.js -o promptforge-id/server.js;
+            put next.config.ts -o promptforge-id/next.config.ts;
+            mkdir -p promptforge-id/tmp;
+            put /dev/null -o promptforge-id/tmp/restart.txt;
+            bye
+          "

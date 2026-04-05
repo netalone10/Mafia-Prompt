@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Topbar from '@/components/Topbar';
-import { niches as defaultNiches, VALID_LICENSE_KEY, FREE_GENERATE_LIMIT, type Niche } from '@/lib/niches';
+import { niches as defaultNiches, FREE_GENERATE_LIMIT, type Niche } from '@/lib/niches';
 import { generatePrompts } from '@/lib/prompts';
 import ShortsGenerator from '@/components/ShortsGenerator';
 
@@ -114,12 +114,22 @@ export default function AppPage() {
     if (!licensed) setGeneratedCount((c) => c + 1);
   }
 
-  function handleActivate() {
-    if (licenseKey.trim() === VALID_LICENSE_KEY) {
-      setLicensed(true);
-      setLicenseError('');
-    } else {
-      setLicenseError('Key tidak valid. Coba demo key: PFID-PRO-2026');
+  async function handleActivate() {
+    try {
+      const res = await fetch('/api/license', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: licenseKey }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setLicensed(true);
+        setLicenseError('');
+      } else {
+        setLicenseError('License key tidak valid atau tidak aktif.');
+      }
+    } catch {
+      setLicenseError('Gagal menghubungi server. Coba lagi.');
     }
   }
 
@@ -497,9 +507,6 @@ export default function AppPage() {
                 </div>
               </div>
 
-              <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                Catatan: di demo ini, lisensi disimpan di memori browser. Untuk production, validasi key sebaiknya lewat backend.
-              </div>
             </div>
 
             {/* LICENSE SECTION — sembunyikan di niche Shorts */}
@@ -507,7 +514,7 @@ export default function AppPage() {
               <div style={{ ...s.panel, padding: '1.25rem' }}>
                 <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Aktivasi lisensi</div>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: '0 0 1rem' }}>
-                  Key valid untuk demo ini: <strong>PFID-PRO-2026</strong>
+                  Masukkan license key kamu untuk membuka semua niche premium.
                 </p>
                 <div style={{ marginBottom: '0.9rem' }}>
                   <label style={s.label}>License key</label>
@@ -540,27 +547,8 @@ export default function AppPage() {
                     Reset
                   </button>
                 </div>
-                <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                  Saran production: sambungkan ke database license, limit aktivasi, dan webhook payment.
-                </div>
               </div>
 
-              <div style={{ ...s.panel, padding: '1.25rem' }}>
-                <div style={{ fontWeight: 600, marginBottom: '0.75rem' }}>Roadmap setelah MVP</div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.55rem' }}>
-                  {[
-                    'Integrasi Midtrans/Xendit/Lemon Squeezy untuk pembayaran.',
-                    'Backend validasi license key agar tidak bisa dibypass di frontend.',
-                    'Dashboard admin untuk tambah niche, template, dan paket lisensi.',
-                    'Export bundle prompt ke PDF, TXT, atau workspace internal.',
-                  ].map((item) => (
-                    <li key={item} style={{ display: 'flex', gap: '0.55rem', alignItems: 'flex-start', fontSize: '0.875rem' }}>
-                      <span style={{ width: 8, height: 8, marginTop: '0.4rem', borderRadius: 999, background: 'var(--color-success)', flexShrink: 0 }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
 
           </section>
